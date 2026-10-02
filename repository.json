@@ -1,5 +1,40 @@
 {
+  "format_version": 1,
   "name": "DreamByte Official Package Repository",
-  "version": 1,
-  "packages": []
+  "repository_version": 1,
+  "base_url": "https://raw.githubusercontent.com/jesusxal777-boop/DreamByte-Package-Repository/main/",
+  "updated_at": "2026-10-02T06:10:00Z",
+  "package_count": 2,
+  "packages": [
+    {
+      "name": "python",
+      "version": "0.0.0",
+      "description": "Python programming language runtime",
+      "type": "runtime",
+      "status": "planned",
+      "architecture": [
+        "arm64-v8a",
+        "armeabi-v7a",
+        "x86_64"
+      ],
+      "dependencies": [],
+      "manifest": "packages/python/package.json",
+      "manifest_sha256": "19085b69ebba3ba0265fee8848ffdc8afaf2c77bcf366dd2735bec8604666fff"
+    },
+    {
+      "name": "wget",
+      "version": "0.0.0",
+      "description": "Network downloader for DreamByte Terminal",
+      "type": "cli",
+      "status": "planned",
+      "architecture": [
+        "arm64-v8a",
+        "armeabi-v7a",
+        "x86_64"
+      ],
+      "dependencies": [],
+      "manifest": "packages/wget/package.json",
+      "manifest_sha256": "d73560892d191faed4c54978ed06e0965fadde3067c15295052e8217f7dafb95"
+    }
+  ]
 }

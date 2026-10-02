@@ -1,7 +1,15 @@
 {
   "name": "wget",
-  "version": "1.x",
-  "description": "Network download utility",
+  "version": "0.0.0",
+  "description": "Network downloader for DreamByte Terminal",
   "maintainer": "DreamByte Studios",
+  "license": "NOASSERTION",
+  "architecture": [
+    "arm64-v8a",
+    "armeabi-v7a",
+    "x86_64"
+  ],
+  "dependencies": [],
+  "type": "cli",
   "status": "planned"
 }
