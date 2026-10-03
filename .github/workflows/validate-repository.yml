@@ -22,3 +22,12 @@ jobs:
 
       - name: Validate manifests and index
         run: python tools/generate_repository.py --check
+
+      - name: Build hello from source
+        run: python tools/build_package.py packages/hello --output-dir dist
+
+      - name: Validate hello dbpkg
+        run: python tools/validate_package.py dist/hello-1.0.0-x86_64.dbpkg --expected-manifest packages/hello/package.json
+
+      - name: Verify published installable assets
+        run: python tools/verify_downloads.py

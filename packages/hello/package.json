@@ -1,0 +1,21 @@
+{
+  "name": "hello",
+  "version": "1.0.0",
+  "description": "Small native hello command for DreamByte Terminal",
+  "maintainer": "DreamByte Studios",
+  "license": "MIT",
+  "architecture": ["x86_64"],
+  "dependencies": [],
+  "type": "cli",
+  "status": "beta",
+  "download": {
+    "x86_64": {
+      "url": "https://github.com/jesusxal777-boop/DreamByte-Package-Repository/releases/download/hello-v1.0.0-x86_64/hello-1.0.0-x86_64.dbpkg",
+      "sha256": "cbb8b1b54255511c3d3197f3eab659b6300a669c1808085857febd3bb05abb9e",
+      "size": 2495,
+      "format": "tar.gz"
+    }
+  },
+  "scope": "user",
+  "homepage": "https://github.com/jesusxal777-boop/DreamByte-Package-Repository"
+}

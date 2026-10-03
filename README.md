@@ -1,72 +1,44 @@
 # DreamByte Package Repository
 
-Repositorio oficial de paquetes para **DreamByte Terminal** y **DreamByte OS**.
+Repositorio oficial de paquetes para **DreamByte Terminal** y **DreamByte OS**. Es estático: el cliente descarga `repository.json`, manifests y assets por HTTPS.
 
-Es un repositorio **estático**: DreamByte Terminal solo necesita descargar archivos por HTTPS (`pkg update`, `pkg search`, `pkg info`, `pkg install`...). No hay servidor.
+## Estado actual
 
-## Estructura
+| Paquete | Tipo | Estado | Arquitectura/artifacto |
+|---|---|---|---|
+| `hello` | cli | `beta` | `x86_64`, `.dbpkg` real publicado |
+| `wget` | cli | `planned` | todavía sin build real |
+| `python` | runtime | `planned` | todavía sin runtime real compatible con Android |
 
-```
-repository.json              índice principal (generado, no editar a mano)
-packages/<nombre>/package.json   manifest de cada paquete
-tools/generate_repository.py     valida los manifests y regenera el índice
-docs/package-format.md       formato de package.json
-docs/repository-api.md       protocolo que debe seguir el cliente (pkg)
-.github/workflows/validate-repository.yml   validación automática
-```
+`hello` contiene código C real, se compila con GCC, se empaqueta como `.dbpkg`, se verifica y se publica en [GitHub Release hello-v1.0.0-x86_64](https://github.com/jesusxal777-boop/DreamByte-Package-Repository/releases/tag/hello-v1.0.0-x86_64).
 
-## Paquetes actuales
+## Build system
 
-| Paquete | Tipo | Estado |
-|---|---|---|
-| `wget` | cli | `planned` (aún no hay archivo descargable) |
-| `python` | runtime | `planned` (requiere un runtime real para Android) |
+- `tools/build_package.py`: compila y crea un `.dbpkg` reproducible.
+- `tools/validate_package.py`: verifica rutas seguras, manifiesto interno, ejecutable y hashes.
+- `tools/publish_package.py`: publica el asset con `gh release` y muestra su URL real.
+- `tools/generate_repository.py`: valida manifests y genera `repository.json`; no se edita manualmente.
+- `tools/pkg.py`: cliente de referencia local para `update`, `search`, `info` e `install`.
 
-Un paquete `planned` o `metadata-only` aparece en búsquedas e info, pero **no se puede instalar** todavía.
+El formato del archivo está documentado en [`docs/dbpkg-format.md`](docs/dbpkg-format.md) y el formato de catálogo en [`docs/package-format.md`](docs/package-format.md).
 
-## Cómo descubre paquetes el cliente
-
-1. `GET {base_url}repository.json` → lista de paquetes con nombre, versión, descripción, tipo, estado, arquitecturas y dependencias.
-2. `GET {base_url}` + `manifest` → el `package.json` completo, con `download.url` y `download.sha256`.
-3. Descargar el archivo, calcular su SHA-256 y compararlo con `download.sha256`. Si no coincide, se rechaza.
-
-El detalle de cada comando está en [`docs/repository-api.md`](docs/repository-api.md).
-
-## Validar el repositorio
-
-Solo hace falta Python 3 (sin dependencias):
+## Prueba reproducible local
 
 ```bash
+rm -rf dist .dreambyte-install
+python tools/build_package.py packages/hello --output-dir dist
+python tools/validate_package.py dist/hello-1.0.0-x86_64.dbpkg --expected-manifest packages/hello/package.json
 python tools/generate_repository.py --check
+python tools/pkg.py --repo-root . update
+python tools/pkg.py --repo-root . search hello
+python tools/pkg.py --repo-root . info hello
+python tools/pkg.py --repo-root . install hello --prefix .dreambyte-install
 ```
 
-Comprueba JSON válido, campos obligatorios, nombres, versiones semver, arquitecturas, duplicados, dependencias (que existan, que cumplan la versión y sin ciclos), URLs HTTPS, formato de SHA-256 y que `repository.json` coincida con los manifests. Los errores indican el archivo y el campo exactos:
+La última orden verifica SHA-256, rechaza rutas inseguras, instala dentro de un prefijo privado y ejecuta `bin/hello`.
 
-```
-ERROR packages/wget/package.json [version]: must be a semantic version MAJOR.MINOR.PATCH, got '1.x'
-```
+## CI
 
-GitHub Actions ejecuta esto en cada `push` y `pull_request`.
+GitHub Actions ejecuta `python tools/generate_repository.py --check`, valida todos los `.dbpkg` presentes en `dist/` y comprueba JSON, nombres, versiones, arquitecturas, dependencias, HTTPS y consistencia de hashes.
 
-## Añadir un paquete nuevo
-
-1. Crea `packages/<nombre>/package.json` (formato en [`docs/package-format.md`](docs/package-format.md)).
-2. Si todavía no existe el archivo real, usa `"status": "planned"` (o `"metadata-only"`) y no pongas `download`. **No inventes URLs ni hashes.**
-3. Regenera el índice:
-   ```bash
-   python tools/generate_repository.py
-   ```
-4. Comprueba y haz commit de `packages/<nombre>/` **y** `repository.json`:
-   ```bash
-   python tools/generate_repository.py --check
-   ```
-
-Para pasar un paquete a `stable`: sube el artefacto real a una URL HTTPS, calcula su SHA-256 (`sha256sum archivo`), añade `download` y cambia `status`.
-
-## Qué falta
-
-- Implementar `pkg` en DreamByte Terminal (cliente HTTP, cache del índice, estado de instalados).
-- Un runtime de Python real compatible con Android, y su artefacto + SHA-256.
-- Artefactos reales de `wget`.
-- Backend privilegiado para los paquetes `scope: "system"` de DreamByte OS M.
-- Firma de manifests (mejora futura).
+Los paquetes `stable`/`beta` deben tener un artefacto real y no pueden depender de paquetes `planned` o `metadata-only`. `wget` y `python` permanecen `planned` hasta que exista un build legítimo e instalable para sus arquitecturas declaradas.

@@ -93,6 +93,10 @@ En paquetes instalables, debe haber una entrada por cada arquitectura declarada 
 - `user`: se instala dentro del almacenamiento privado de la app (sandbox de Android). Es lo único que puede instalar DreamByte Terminal en Android normal.
 - `system`: reservado para DreamByte OS M, que tendrá un backend con privilegios separado. Un cliente sin ese backend **debe rechazar** estos paquetes.
 
+## Artefacto físico
+
+Cuando un paquete es `beta`, `stable` o `deprecated`, `download` debe apuntar a un `.dbpkg` real. El formato físico y sus reglas de extracción segura están documentados en [`dbpkg-format.md`](dbpkg-format.md). Para construir y comprobar un paquete usa `tools/build_package.py` y `tools/validate_package.py`; el hash de `download` debe ser el SHA-256 del archivo final publicado.
+
 ## Ejemplo (paquete planificado, tal como existe hoy)
 
 ```json
